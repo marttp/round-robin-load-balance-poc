@@ -17,9 +17,6 @@ public class RoutingProperties {
     @Value("${routing.upstream.timeout}")
     private Duration timeout;
 
-    @Value("${routing.upstream.total-timeout}")
-    private Duration totalTimeout;
-
     @Value("${routing.upstream.failure-attempt-threshold}")
     private int failureAttemptThreshold;
 
@@ -43,10 +40,6 @@ public class RoutingProperties {
 
     public int getFailureAttemptThreshold() {
         return failureAttemptThreshold;
-    }
-
-    public Duration getTotalTimeout() {
-        return totalTimeout;
     }
 
     public Duration getHealthCheckInterval() {
