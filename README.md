@@ -61,13 +61,6 @@ end
 @enduml
 ```
 
-### Key Benefits:
-- **🚀 Fast failure detection**: Services marked unhealthy within 10 seconds of failure
-- **⚡ Zero client impact**: Unhealthy hosts skipped immediately, no timeout delays
-- **🔄 Automatic recovery**: Services automatically return to rotation when healthy
-- **🧵 Thread-safe**: Concurrent health updates don't interfere with request routing
-- **📊 Observable**: Comprehensive logging for monitoring and debugging
-
 ## Potential Improvements
 
 While implementing this, I considered several enhancements but chose to focus on core functionality:
