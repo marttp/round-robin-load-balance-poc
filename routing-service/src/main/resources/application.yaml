@@ -2,6 +2,10 @@ spring:
   application:
     name: routing-service
 
+logging:
+  level:
+    dev.tpcoder.routing: debug
+
 # http://localhost:8081/api/v1/echo,http://localhost:8082/api/v1/echo,http://localhost:8083/api/v1/echo
 routing:
   health-check:
