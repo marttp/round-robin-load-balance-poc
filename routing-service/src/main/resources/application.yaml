@@ -11,7 +11,6 @@ routing:
   health-check:
     interval: 10s
   upstream:
-    hosts: ${CONFIG_DOWNSTREAM_HOSTS:http://localhost:8081/api/v1/echo,http://localhost:8082/api/v1/echo,http://localhost:8083/api/v1/echo}
-    timeout: 500ms
-    total-timeout: 750ms
-    failure-attempt-threshold: 2
+    hosts: ${UPSTREAM_HOSTS:http://localhost:8081/api/v1/echo,http://localhost:8082/api/v1/echo,http://localhost:8083/api/v1/echo}
+    timeout: ${UPSTREAM_TIMEOUT_MS:500ms}
+    failure-attempt-threshold: ${UPSTREAM_FAILURE_ATTEMPT_THRESHOLD:2}
