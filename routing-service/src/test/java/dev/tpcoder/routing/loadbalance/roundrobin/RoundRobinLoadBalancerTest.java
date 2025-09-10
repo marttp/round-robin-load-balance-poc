@@ -2,6 +2,8 @@ package dev.tpcoder.routing.loadbalance.roundrobin;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.tpcoder.routing.exception.NoHostAvailableException;
+import dev.tpcoder.routing.exception.UpstreamException;
 import dev.tpcoder.routing.config.RoutingProperties;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -71,7 +73,7 @@ class RoundRobinLoadBalancerTest {
         var emptyLoadBalancer = new RoundRobinLoadBalancer(emptyConfig, RestClient.builder());
 
         var requestBody = objectMapper.readTree("{\"transactionId\":\"TXN123\"}");
-        assertThrows(RuntimeException.class, () -> emptyLoadBalancer.distributeTraffic(requestBody));
+        assertThrows(NoHostAvailableException.class, () -> emptyLoadBalancer.distributeTraffic(requestBody));
     }
 
     @Test
@@ -80,7 +82,7 @@ class RoundRobinLoadBalancerTest {
         var statusTable = roundRobinConfiguration.getHostHealthStatusMap();
         statusTable.replaceAll((_, _) -> false);
         var requestBody = objectMapper.readTree("{\"transactionId\":\"TXN123\"}");
-        assertThrows(RuntimeException.class, () -> loadBalancer.distributeTraffic(requestBody));
+        assertThrows(NoHostAvailableException.class, () -> loadBalancer.distributeTraffic(requestBody));
     }
 
     @Test
@@ -88,7 +90,7 @@ class RoundRobinLoadBalancerTest {
         mockWebServer.enqueue(new MockResponse().setResponseCode(500));
         mockWebServer.enqueue(new MockResponse().setResponseCode(500));
         var requestBody = objectMapper.readTree("{\"transactionId\":\"TXN123\"}");
-        assertThrows(RuntimeException.class, () -> loadBalancer.distributeTraffic(requestBody));
+        assertThrows(UpstreamException.class, () -> loadBalancer.distributeTraffic(requestBody));
     }
 
     @Test
@@ -101,6 +103,6 @@ class RoundRobinLoadBalancerTest {
                 .setBodyDelay(1000, TimeUnit.MILLISECONDS));
 
         var requestBody = objectMapper.readTree("{\"transactionId\":\"TXN123\"}");
-        assertThrows(RuntimeException.class, () -> loadBalancer.distributeTraffic(requestBody));
+        assertThrows(UpstreamException.class, () -> loadBalancer.distributeTraffic(requestBody));
     }
 }

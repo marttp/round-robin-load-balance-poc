@@ -1,6 +1,8 @@
 package dev.tpcoder.routing.loadbalance.roundrobin;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import dev.tpcoder.routing.exception.NoHostAvailableException;
+import dev.tpcoder.routing.exception.UpstreamException;
 import dev.tpcoder.routing.loadbalance.TrafficDistributable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +37,7 @@ public class RoundRobinLoadBalancer implements TrafficDistributable {
         var hostsList = roundRobinConfiguration.getHostsList();
         var healthStatusMap = roundRobinConfiguration.getHostHealthStatusMap();
         if (hostsList.isEmpty() || RoundRobinUtils.isAllHostsUnhealthy(healthStatusMap)) {
-            throw new RuntimeException("No healthy hosts available");
+            throw new NoHostAvailableException("No healthy hosts available");
         }
 
         var routingProperties = roundRobinConfiguration.getRoutingProperties();
@@ -54,7 +56,7 @@ public class RoundRobinLoadBalancer implements TrafficDistributable {
                 }
             }
         }
-        throw new RuntimeException("Failed to route request to hosts");
+        throw new UpstreamException("Failed to route request to hosts");
     }
 
     private JsonNode upstreamRequest(JsonNode body, String host) {
