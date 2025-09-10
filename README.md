@@ -2,7 +2,7 @@
 
 ## Architecture
 
-This project implements a Round Robin Load Balancer with active health checking as per the assignment requirements:
+This project implements a Round Robin Load Balancer:
 
 - **Routing Service** - Round-robin load balancer
   - Including proactive monitoring upstream service
