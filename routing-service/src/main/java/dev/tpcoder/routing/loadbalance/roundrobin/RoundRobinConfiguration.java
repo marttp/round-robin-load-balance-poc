@@ -10,13 +10,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Configuration
 public class RoundRobinConfiguration {
 
-    private final RoutingProperties routingProperties;
     private final AtomicInteger roundRobinCounter;
     private final ConcurrentHashMap<String, Boolean> hostHealthStatusMap;
     private final CopyOnWriteArrayList<String> hostsList;
 
     public RoundRobinConfiguration(RoutingProperties routingProperties) {
-        this.routingProperties = routingProperties;
         this.roundRobinCounter = new AtomicInteger(0);
         this.hostsList = new CopyOnWriteArrayList<>();
         this.hostHealthStatusMap = new ConcurrentHashMap<>();
@@ -25,10 +23,6 @@ public class RoundRobinConfiguration {
             hostHealthStatusMap.put(host, true);
             hostsList.add(host);
         }
-    }
-
-    public RoutingProperties getRoutingProperties() {
-        return routingProperties;
     }
 
     public AtomicInteger getRoundRobinCounter() {
