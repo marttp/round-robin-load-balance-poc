@@ -13,11 +13,66 @@ This project implements a Round Robin Load Balancer:
 
 ![high-level-concept](./images/high-level-concept.jpg)
 
+## Architecture: Active Health Check System
+
+The load balancer implements **proactive health monitoring** to detect service failures before they impact client requests:
+
+```plantuml
+@startuml
+!theme plain
+title Active Health Check Scheduler - 10 Seconds Cycle with 3 instances
+
+participant "Health Check\nScheduler" as HCS
+collections "Health Status Map\n{host → boolean}" as HSM
+participant "Echo Service\n:8081" as E1
+participant "Echo Service\n:8082" as E2  
+participant "Echo Service\n:8083" as E3
+
+== Every 10 Seconds ==
+HCS -> HCS : @Scheduled health check cycle
+
+HCS -> E1 : GET /actuator/health
+alt Service Healthy ✅
+    E1 --> HCS : HTTP 200 {"status":"UP"}
+    HCS -> HSM : host → true
+else Service Down ❌
+    E1 --> HCS : Connection refused / 5xx / Timeout
+    HCS -> HSM : host → false
+end
+
+HCS -> E2 : GET /actuator/health
+alt Service Healthy ✅
+    E2 --> HCS : HTTP 200 {"status":"UP"}
+    HCS -> HSM : host → true
+else Service Down ❌
+    E2 --> HCS : Connection refused / 5xx / Timeout
+    HCS -> HSM : host → false
+end
+
+HCS -> E3 : GET /actuator/health
+alt Service Healthy ✅
+    E3 --> HCS : HTTP 200 {"status":"UP"}
+    HCS -> HSM : host → true
+else Service Down ❌
+    E3 --> HCS : Connection refused / 5xx / Timeout
+    HCS -> HSM : host → false
+end
+
+@enduml
+```
+
+### Key Benefits:
+- **🚀 Fast failure detection**: Services marked unhealthy within 10 seconds of failure
+- **⚡ Zero client impact**: Unhealthy hosts skipped immediately, no timeout delays
+- **🔄 Automatic recovery**: Services automatically return to rotation when healthy
+- **🧵 Thread-safe**: Concurrent health updates don't interfere with request routing
+- **📊 Observable**: Comprehensive logging for monitoring and debugging
+
 ## Potential Improvements
 
 While implementing this, I considered several enhancements but chose to focus on core functionality:
 
-- **Circuit breaker pattern** - Could prevent calls to consistently failing services, but adds complexity beyond assignment scope
+- **Circuit breaker pattern** - Could prevent calls to consistently failing services, but adds more complexity for POC scope
 - **Timeout budget strategy** - Progressive timeout reduction (750ms total → 500ms first attempt → 250ms remaining) would improve UX under load, but standard fixed timeout + retry is simpler and sufficient for POC requirements
 
 ## Routing Service (Load Balancer)
