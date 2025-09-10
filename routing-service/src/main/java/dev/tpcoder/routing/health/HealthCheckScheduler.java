@@ -26,8 +26,7 @@ public class HealthCheckScheduler {
     ) {
         this.routingProperties = routingProperties;
         this.roundRobinConfiguration = roundRobinConfiguration;
-        this.healthCheckClient = restClientBuilder
-                .build();
+        this.healthCheckClient = restClientBuilder.build();
     }
 
     @Scheduled(
