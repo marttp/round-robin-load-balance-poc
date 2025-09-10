@@ -5,10 +5,10 @@
 This project implements a Round Robin Load Balancer:
 
 - **Routing Service** - Round-robin load balancer
-  - Including proactive monitoring upstream service
-  - If stale health status table occur, using retry attempt with different host if one of the application APIs goes down
-    - Preventing request to all hosts
-  - Using timeout budget to handle synchronous
+  - Including proactive health monitoring of upstream services
+  - If stale health status occurs, uses retry attempts with different hosts when application APIs fail
+    - Prevents requests to unhealthy hosts
+  - Fixed timeout per request with failure attempt threshold
 - **Simple Echo Service** - Application API that echoes JSON requests
 
 ![high-level-concept](./images/high-level-concept.jpg)
@@ -42,6 +42,12 @@ While implementing this, I considered several enhancements but chose to focus on
 ```bash
 # Override default hosts
 export UPSTREAM_HOSTS="http://localhost:8081/api/v1/echo,http://localhost:8082/api/v1/echo,http://localhost:8083/api/v1/echo"
+
+# Override default timeout (optional)
+export UPSTREAM_TIMEOUT_MS="500ms"
+
+# Override default failure threshold (optional)  
+export UPSTREAM_FAILURE_ATTEMPT_THRESHOLD="2"
 ```
 
 ### Test Load Balancer
@@ -53,20 +59,20 @@ curl -X POST http://localhost:8080/lb/round-robin \
   -d '{"transactionId":"TXN123456","amount":350.00,"currency":"THB","merchantId":"MERCHANT_001"}'
 ```
 
-## Simple API
+## Simple Echo Service
 
-In order to mock behavior of round-robin load balancer, need to simulate the environment to mock behavior.
+To test the round-robin load balancer, run multiple instances of the echo service on different ports.
 
-### Start service
+### Start Echo Services
 
 ```bash
-# Terminal 2
+# Terminal 2 - Echo service on port 8081
 ./simple-service/mvnw -f simple-service/pom.xml spring-boot:run -Dspring-boot.run.arguments=--server.port=8081
 
-# Terminal 3  
+# Terminal 3 - Echo service on port 8082  
 ./simple-service/mvnw -f simple-service/pom.xml spring-boot:run -Dspring-boot.run.arguments=--server.port=8082
 
-# Terminal 4
+# Terminal 4 - Echo service on port 8083
 ./simple-service/mvnw -f simple-service/pom.xml spring-boot:run -Dspring-boot.run.arguments=--server.port=8083
 ```
 
