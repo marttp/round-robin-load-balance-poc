@@ -28,7 +28,9 @@ public class RoutingProperties {
         this.timeout = timeout;
         this.failureAttemptThreshold = failureAttemptThreshold;
         this.healthCheckInterval = healthCheckInterval;
-        this.upstreamHosts = Arrays.asList(hosts.trim().split(","));
+        this.upstreamHosts = Arrays.stream(hosts.trim().split(","))
+                .filter(s -> !s.isEmpty())
+                .toList();
     }
 
     public List<String> getHostsList() {
