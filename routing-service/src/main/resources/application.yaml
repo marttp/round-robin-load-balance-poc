@@ -13,4 +13,5 @@ routing:
   upstream:
     hosts: ${CONFIG_DOWNSTREAM_HOSTS:http://localhost:8081/api/v1/echo,http://localhost:8082/api/v1/echo,http://localhost:8083/api/v1/echo}
     timeout: 500ms
+    total-timeout: 750ms
     failure-attempt-threshold: 2
