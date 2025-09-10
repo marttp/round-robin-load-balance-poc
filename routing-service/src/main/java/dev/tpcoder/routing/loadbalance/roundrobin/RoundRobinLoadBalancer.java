@@ -10,8 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 import java.time.Duration;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 @Service
 public class RoundRobinLoadBalancer implements TrafficDistributable {
@@ -36,7 +34,7 @@ public class RoundRobinLoadBalancer implements TrafficDistributable {
     public JsonNode distributeTraffic(JsonNode body) {
         var hostsList = roundRobinConfiguration.getHostsList();
         var healthStatusMap = roundRobinConfiguration.getHostHealthStatusMap();
-        if (hostsList.isEmpty() || isAllHostsUnhealthy(healthStatusMap)) {
+        if (hostsList.isEmpty() || RoundRobinUtils.isAllHostsUnhealthy(healthStatusMap)) {
             throw new RuntimeException("No healthy hosts available");
         }
 
@@ -45,8 +43,8 @@ public class RoundRobinLoadBalancer implements TrafficDistributable {
 
         // Retry using failure attempt threshold
         while (failureThreshold > 0) {
-            String selectedHost = getNextRoundRobinHost(hostsList);
-            if (healthStatusMap.get(selectedHost)) {
+            String selectedHost = RoundRobinUtils.getNextRoundRobinHost(hostsList, roundRobinConfiguration.getRoundRobinCounter());
+            if (RoundRobinUtils.isHostHealthy(selectedHost, healthStatusMap)) {
                 try {
                     return upstreamRequest(body, selectedHost);
                 } catch (Exception e) {
@@ -66,18 +64,6 @@ public class RoundRobinLoadBalancer implements TrafficDistributable {
                 .body(body)
                 .retrieve()
                 .body(JsonNode.class);
-    }
-
-    private String getNextRoundRobinHost(CopyOnWriteArrayList<String> hostsList) {
-        var totalSize = hostsList.size();
-        var currentIndex = roundRobinConfiguration
-                .getRoundRobinCounter()
-                .getAndUpdate(c -> (c + 1) % totalSize);
-        return hostsList.get(currentIndex);
-    }
-
-    private boolean isAllHostsUnhealthy(ConcurrentHashMap<String, Boolean> hostHealthStatusMap) {
-        return hostHealthStatusMap.values().stream().noneMatch(Boolean.TRUE::equals);
     }
 
     private HttpComponentsClientHttpRequestFactory createClientHttpRequestFactory(long timeoutMs) {
