@@ -7,6 +7,6 @@ routing:
   health-check:
     interval: 10s
   upstream:
-    hosts: ${CONFIG_DOWNSTREAM_HOSTS:localhost:8081}
+    hosts: ${CONFIG_DOWNSTREAM_HOSTS:localhost:8081,localhost:8082,localhost:8083}
     timeout: 500ms
     failure-attempt-threshold: 2

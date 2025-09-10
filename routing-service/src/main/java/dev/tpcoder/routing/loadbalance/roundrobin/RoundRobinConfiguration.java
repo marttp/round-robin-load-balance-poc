@@ -1,8 +1,6 @@
 package dev.tpcoder.routing.loadbalance.roundrobin;
 
 import dev.tpcoder.routing.config.RoutingProperties;
-import jakarta.annotation.PostConstruct;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,35 +11,36 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class RoundRobinConfiguration {
 
     private final RoutingProperties routingProperties;
+    private final AtomicInteger roundRobinCounter;
+    private final ConcurrentHashMap<String, Boolean> hostHealthStatusMap;
+    private final CopyOnWriteArrayList<String> hostsList;
 
     public RoundRobinConfiguration(RoutingProperties routingProperties) {
         this.routingProperties = routingProperties;
-    }
-
-    @Bean
-    public ConcurrentHashMap<String, Boolean> hostHealthStatusMap() {
-        return new ConcurrentHashMap<>();
-    }
-
-    @Bean
-    public CopyOnWriteArrayList<String> hostsList() {
-        return new CopyOnWriteArrayList<>();
-    }
-
-    @Bean
-    public AtomicInteger roundRobinCounter() {
-        return new AtomicInteger(0);
-    }
-
-    @PostConstruct
-    public void initializeHealthStatus(
-            ConcurrentHashMap<String, Boolean> hostHealthStatusMap,
-            CopyOnWriteArrayList<String> hostsList
-    ) {
+        this.roundRobinCounter = new AtomicInteger(0);
+        this.hostsList = new CopyOnWriteArrayList<>();
+        this.hostHealthStatusMap = new ConcurrentHashMap<>();
         // Initialize all hosts
         for (String host : routingProperties.getHostsList()) {
             hostHealthStatusMap.put(host, true);
             hostsList.add(host);
         }
     }
+
+    public RoutingProperties getRoutingProperties() {
+        return routingProperties;
+    }
+
+    public AtomicInteger getRoundRobinCounter() {
+        return roundRobinCounter;
+    }
+
+    public ConcurrentHashMap<String, Boolean> getHostHealthStatusMap() {
+        return hostHealthStatusMap;
+    }
+
+    public CopyOnWriteArrayList<String> getHostsList() {
+        return hostsList;
+    }
+
 }

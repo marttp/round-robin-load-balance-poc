@@ -19,11 +19,11 @@ public class RoundRobinLoadBalancer implements TrafficDistributable {
 
     @Override
     public JsonNode distributeTraffic(JsonNode body) {
-        var totalSize = roundRobinConfiguration.hostsList().size();
+        var totalSize = roundRobinConfiguration.getHostsList().size();
         var currentIndex = roundRobinConfiguration
-                .roundRobinCounter()
+                .getRoundRobinCounter()
                 .getAndUpdate(c -> (c + 1) % totalSize);
-        logger.debug("Current host is {}", roundRobinConfiguration.hostsList().get(currentIndex));
+        logger.info("Current host is {}", roundRobinConfiguration.getHostsList().get(currentIndex));
         return body;
     }
 }
