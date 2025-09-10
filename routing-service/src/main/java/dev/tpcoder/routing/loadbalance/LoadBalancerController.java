@@ -17,11 +17,13 @@ public class LoadBalancerController {
 
     private final TrafficDistributable roundRobinLoadBalancer;
 
-    public LoadBalancerController(@Qualifier("roundRobinLoadBalancer") TrafficDistributable roundRobinLoadBalancer) {
+    public LoadBalancerController(
+            @Qualifier("roundRobinLoadBalancer") TrafficDistributable roundRobinLoadBalancer
+    ) {
         this.roundRobinLoadBalancer = roundRobinLoadBalancer;
     }
 
-    @PostMapping
+    @PostMapping("round-robin")
     public ResponseEntity<JsonNode> roundRobin(@RequestBody JsonNode body) {
         logger.debug("Received request to round robin load balancer");
         var result = roundRobinLoadBalancer.distributeTraffic(body);
