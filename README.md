@@ -6,7 +6,11 @@ This project implements a Round Robin Load Balancer with active health checking 
 
 - **Routing Service** - Round-robin load balancer
   - Including proactive monitoring upstream service
-- **Simple Echo Service** - Application API that echoes JSON requests  
+  - If stale health status table occur, using retry attempt with different host if one of the application APIs goes down
+    - Preventing request to all hosts
+- **Simple Echo Service** - Application API that echoes JSON requests
+
+Note - Circuit breaker is feasible to be included as well. But I would like to minimize the implementation
 
 ![high-level-concept](./images/high-level-concept.jpg)
 
