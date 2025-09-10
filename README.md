@@ -8,11 +8,17 @@ This project implements a Round Robin Load Balancer:
   - Including proactive monitoring upstream service
   - If stale health status table occur, using retry attempt with different host if one of the application APIs goes down
     - Preventing request to all hosts
+  - Using timeout budget to handle synchronous
 - **Simple Echo Service** - Application API that echoes JSON requests
 
-Note - Circuit breaker is feasible to be included as well. But I would like to minimize the implementation
-
 ![high-level-concept](./images/high-level-concept.jpg)
+
+## Potential Improvements
+
+While implementing this, I considered several enhancements but chose to focus on core functionality:
+
+- **Circuit breaker pattern** - Could prevent calls to consistently failing services, but adds complexity beyond assignment scope
+- **Timeout budget strategy** - Progressive timeout reduction (750ms total → 500ms first attempt → 250ms remaining) would improve UX under load, but standard fixed timeout + retry is simpler and sufficient for POC requirements
 
 ## Routing Service (Load Balancer)
 
@@ -25,16 +31,17 @@ Note - Circuit breaker is feasible to be included as well. But I would like to m
 
 **Configuration:**
 - **Port**: 8080 (default)
-- **Upstream hosts**: Configured via `CONFIG_DOWNSTREAM_HOSTS` environment variable
+- **Upstream hosts**: Configured via `UPSTREAM_HOSTS` environment variable
 - **Health check interval**: 10 seconds
+- **Request timeout**: 500ms per attempt
 - **Failure attempt threshold**: 2
-  - The threshold to preventing full iteration in host list
+  - Prevents full iteration through all hosts when requests are failing
 
 ### Environment Variables
 
 ```bash
 # Override default hosts
-export CONFIG_DOWNSTREAM_HOSTS="http://localhost:8081/api/v1/echo,http://localhost:8082/api/v1/echo,http://localhost:8083/api/v1/echo"
+export UPSTREAM_HOSTS="http://localhost:8081/api/v1/echo,http://localhost:8082/api/v1/echo,http://localhost:8083/api/v1/echo"
 ```
 
 ### Test Load Balancer
