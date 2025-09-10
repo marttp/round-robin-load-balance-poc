@@ -11,22 +11,23 @@ import java.util.List;
 @Configuration
 public class RoutingProperties {
 
-    @Value("${routing.upstream.hosts}")
-    private String hosts;
+    private final Duration timeout;
 
-    @Value("${routing.upstream.timeout}")
-    private Duration timeout;
+    private final int failureAttemptThreshold;
 
-    @Value("${routing.upstream.failure-attempt-threshold}")
-    private int failureAttemptThreshold;
+    private final Duration healthCheckInterval;
 
-    @Value("${routing.health-check.interval}")
-    private Duration healthCheckInterval;
+    private final List<String> upstreamHosts;
 
-    private List<String> upstreamHosts;
-
-    @PostConstruct
-    public void init() {
+    public RoutingProperties(
+            @Value("${routing.upstream.hosts}") String hosts,
+            @Value("${routing.upstream.timeout}") Duration timeout,
+            @Value("${routing.upstream.failure-attempt-threshold}") int failureAttemptThreshold,
+            @Value("${routing.health-check.interval}") Duration healthCheckInterval
+    ) {
+        this.timeout = timeout;
+        this.failureAttemptThreshold = failureAttemptThreshold;
+        this.healthCheckInterval = healthCheckInterval;
         this.upstreamHosts = Arrays.asList(hosts.trim().split(","));
     }
 
